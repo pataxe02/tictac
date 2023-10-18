@@ -1,6 +1,18 @@
 import { fail, redirect, type Cookies, error } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import { prisma } from '$lib';
+import { randomBytes, pbkdf2Sync } from 'crypto';
+
+function hashPassword(password:string) {
+    const salt = randomBytes(16).toString('hex');
+    const hash = pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+    return { salt, hash };
+}
+
+function validatePassword(inputPassword:string, storedSalt:string, storedHash:string) {
+    const hash = pbkdf2Sync(inputPassword, storedSalt, 1000, 64, 'sha512').toString('hex');
+    return storedHash === hash;
+}
 
 export const load = (async ({cookies}) => {
     let username = cookies.get('username')
@@ -31,10 +43,11 @@ export const actions: Actions = {
         if(user){
             return fail(400, {username:'Username is taken'})
         }
-
+        const { salt, hash } = hashPassword(password);
         await prisma.user.create({
             data: 
-            {name: username, password: password}
+            {name: username, password: hash, salt: salt}
+            
         })
 
         cookies.set('username', username,{path: '/' , secure: false, expires: new Date(2044,10,12)});
