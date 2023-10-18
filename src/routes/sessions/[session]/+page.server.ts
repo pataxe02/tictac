@@ -31,12 +31,14 @@ export const actions: Actions = {
         let username = cookies.get('username');
         let prisma_session = await prisma.session.findFirst({where: {name: session}});
         let author = await prisma.user.findUnique({where: {name: username}})
+        console.log(username)
 
         if(!prisma_session){
             throw error(404, 'Session "${session}" not found')
         }
 
         if(!author){
+            console.log(author)
             throw redirect(307, '/guest')
         }
 
