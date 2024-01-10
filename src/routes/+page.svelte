@@ -4,7 +4,7 @@
 
     <nav id="navbar">
         <div>
-            <a id="link" href="/sessions">Chat Sessions</a>
+            <a id="link" href="/canvas">Canvasses</a>
         </div>
         <form method="post" action="/guest/login?/logout" use:enhance>
             <button class="button">Logout</button>

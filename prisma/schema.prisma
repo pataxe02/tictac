@@ -11,24 +11,26 @@ datasource db {
 }
 
 model User {
-  id       Int       @id @default(autoincrement())
-  name     String    @unique
-  salt    String
+  id       Int     @id @default(autoincrement())
+  name     String  @unique
+  salt     String
   password String
-  message  Message[]
+  pixel    Pixel[]
 }
 
-model Session {
-  id       Int       @id @default(autoincrement())
-  name     String    @unique
-  message  Message[]
+model Canvas {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+  pixel Pixel[]
 }
 
-model Message {
-  id        Int      @id @default(autoincrement())
-  user      User     @relation(fields: [userName], references: [name])
-  userName    String 
-  sessions  Session? @relation(fields: [sessionId], references: [id])
-  sessionId Int?
-  message String
+model Pixel {
+  id Int @id @default(autoincrement())
+
+  color String
+
+  User     User?   @relation(fields: [userName], references: [name])
+  userName   String?
+  Canvas   Canvas? @relation(fields: [canvasId], references: [id])
+  canvasId Int?
 }

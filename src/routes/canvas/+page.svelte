@@ -5,25 +5,25 @@
 export let data;
 export let form;
 
-$: console.log(data.session)
+$: console.log(data.canvasses)
 </script>
 
 
-<div id="session_create">
+<div id="canvas_create">
     <form action="?/create" method="post" use:enhance>
-        <label for="sessionName">New Session</label>
-        <input type="text" name="sessionName">
+        <label for="canvasName">New Canvas</label>
+        <input type="text" name="canvasName">
         <button>Create</button>
-        {#if form?.sessionName}
-            <span>{form.sessionName}</span>
+        {#if form?.canvasName}
+            <span>{form.canvasName}</span>
         {/if}
     </form>
 </div>
 
 
-<div id="session_list">
-    {#each data.session as session}
-        <p><a href='/sessions/{session.name}'>{session.name} - {session.message.length} Messages</a></p>
+<div id="canvas_list">
+    {#each data.canvasses as canvas}
+        <p><a href='/canvas/{canvas.name}'>{canvas.name}</a></p>
     {/each}
 </div>
 
@@ -38,7 +38,7 @@ $: console.log(data.session)
         border: none;
     }
 
-    #session_list{
+    #canvas_list{
         position: relative;
         display: block;
         height: fit-content;
@@ -48,7 +48,7 @@ $: console.log(data.session)
         transform: scale(1.1);
     }
 
-    #session_create{
+    #canvas_create{
         position: absolute;
         display: flex;
         left: 37%;
