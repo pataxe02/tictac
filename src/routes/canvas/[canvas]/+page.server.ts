@@ -21,6 +21,7 @@ export const load = (async ({params, cookies}) => {
         throw redirect(303, '/');
     }
 
+
     return {canvas, prisma_canvas, user};
 }) satisfies PageServerLoad;
 
@@ -39,5 +40,54 @@ export const actions: Actions = {
             console.log(author)
             throw redirect(307, '/guest')
         }
+    },
+
+    paint: async({request, params, cookies})=>{
+        let canvasName = params.canvas;
+        let username = cookies.get('username');
+        let data = await request.formData();
+        let color = data.get('color')?.toString();
+        let id = data.get('id')?.toString();
+
+        let attempts = 0;
+
+        while (attempts < 5){
+            try {
+                await prisma.canvas.update({
+                    where: {name: canvasName},
+                    data: {
+                        pixel: {
+                            update: {
+                                where: {id: id?parseInt(id):0},
+                                data: {color: color, userName: username}
+                            }
+                        }
+                    }
+                });
+                break;
+            } catch (error) {
+                attempts++;
+                console.log(attempts)
+            }
+        }
+
+      
+        // update the pixel id to the new color
+    },
+        clear: async({request, params, cookies})=>{
+    
+            let canvasName = params.canvas;
+
+            await prisma.canvas.update({
+                where: {name: canvasName},
+                data: {
+                    pixel: {
+                        updateMany: {
+                            where : {},
+                            data: {color: "white"}
+                        }
+                    }
+                }
+            });
     }
 };

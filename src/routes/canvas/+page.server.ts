@@ -4,7 +4,10 @@ import { prisma } from '$lib';
 
 export let _canvasses = new Map();
 export const load = (async() => {
-    return {canvasses: await prisma.canvas.findMany()};
+
+    let temp = await prisma.canvas.findMany();
+
+    return {canvasses: temp};
 }) satisfies PageServerLoad
 
 export const actions: Actions = {
@@ -19,9 +22,9 @@ export const actions: Actions = {
         if(canvasName){
             await prisma.canvas.create({
                 data: {name: canvasName, pixel: {
-                    createMany: {
-                        data:[{color: '#000000', userName: username}]
-                    }
+                    create: 
+                        Array(1024).fill({color: '#FFFFFFs', userName: username})
+                    
                 }},
                 
             });
