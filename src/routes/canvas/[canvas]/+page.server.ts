@@ -2,56 +2,50 @@ import { error, fail, redirect } from '@sveltejs/kit';
 import { _canvasses } from '../+page.server';
 import type { PageServerLoad, Actions } from './$types';
 import { prisma } from '$lib';
+import { connect } from 'http2';
+
 
 
 export const load = (async ({params, cookies}) => {
     let canvas = params.canvas;
     let username = cookies.get('username');
     let prisma_canvas = await prisma.canvas.findFirst({where: {name: canvas}, include: {pixel: true}});
+    let user = await prisma.user.findUnique({where: {name:username}});
 
     if(!prisma_canvas){
         throw redirect(301, '/');
     }
 
-    let user = await prisma.user.findUnique({
-        where: {name:username}
-    });
-
-    if(typeof username === 'undefined'){
-        throw redirect(303, '/');
+    if(!user){
+        throw redirect(307, '/guest')
     }
 
 
     return {canvas, prisma_canvas, user};
-}) satisfies PageServerLoad;
+})satisfies PageServerLoad;
 
 export const actions: Actions = {
-    pixel: async({request, params, cookies})=>{
+    pixel: async({request, params})=>{
         let canvas = params.canvas;
-        let username = cookies.get('username');
         let prisma_canvas = await prisma.canvas.findFirst({where: {name: canvas}, include:{pixel: true}});
-        let author = await prisma.user.findUnique({where: {name: username}})
 
         if(!prisma_canvas){
             throw error(404, 'canvas "${canvas}" not found')
-        }
-
-        if(!author){
-            console.log(author)
-            throw redirect(307, '/guest')
         }
     },
 
     paint: async({request, params, cookies})=>{
         let canvasName = params.canvas;
-        let username = cookies.get('username');
         let data = await request.formData();
         let color = data.get('color')?.toString();
+        let eraser = data.get('eraserIsActive');
         let id = data.get('id')?.toString();
+        let username = cookies.get('username');
+        let user = await prisma.user.findUnique({where: {name:username}});
+
 
         let attempts = 0;
-
-        while (attempts < 5){
+        while (attempts < 3){
             try {
                 await prisma.canvas.update({
                     where: {name: canvasName},
@@ -59,7 +53,7 @@ export const actions: Actions = {
                         pixel: {
                             update: {
                                 where: {id: id?parseInt(id):0},
-                                data: {color: color, userName: username}
+                                data: {color: eraser?'white':color!, userColor: user!.color}
                             }
                         }
                     }
@@ -72,22 +66,21 @@ export const actions: Actions = {
         }
 
       
-        // update the pixel id to the new color
     },
-        clear: async({request, params, cookies})=>{
+    clear: async({request, params})=>{
     
-            let canvasName = params.canvas;
+        let canvasName = params.canvas;
 
-            await prisma.canvas.update({
-                where: {name: canvasName},
-                data: {
-                    pixel: {
-                        updateMany: {
-                            where : {},
-                            data: {color: "white"}
-                        }
+        await prisma.canvas.update({
+            where: {name: canvasName},
+            data: {
+                pixel: {
+                    updateMany: {
+                        where : {},
+                        data: {color: "white", userColor: null}
                     }
                 }
-            });
+            }
+        });
     }
 };

@@ -1,6 +1,13 @@
 import { fail, redirect, type Cookies, error } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import { prisma } from '$lib';
+import { randomBytes, pbkdf2Sync } from 'crypto';
+
+function validatePassword(inputPassword:string, storedSalt:string, storedHash:string) {
+    const hash = pbkdf2Sync(inputPassword, storedSalt, 1000, 64, 'sha512').toString('hex');
+    return storedHash === hash;
+}
+
 
 
 export const load = (async ({cookies}) => {
@@ -29,7 +36,7 @@ export const actions: Actions = {
 
         if(user){
 
-            if(password == user.password){   
+            if(validatePassword(password!, user.salt, user.password)){   
                 cookies.set('username', username,{path: '/' , secure: false, expires: new Date(2044,10,12)});
                 throw redirect(307, '/');
             }

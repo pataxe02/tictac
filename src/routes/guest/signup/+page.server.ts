@@ -8,12 +8,6 @@ function hashPassword(password:string) {
     const hash = pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
     return { salt, hash };
 }
-
-function validatePassword(inputPassword:string, storedSalt:string, storedHash:string) {
-    const hash = pbkdf2Sync(inputPassword, storedSalt, 1000, 64, 'sha512').toString('hex');
-    return storedHash === hash;
-}
-
 export const load = (async ({cookies}) => {
     let username = cookies.get('username')
     if (username){
@@ -30,6 +24,7 @@ export const actions: Actions = {
         let data = await request.formData();
         let username = data.get("username")?.toString();
         let password = data.get('password')?.toString();
+        let userColor = data.get('userColor')?.toString();
 
         if(!username){
             return fail(404, {username:'Please submit a username'})
@@ -46,7 +41,7 @@ export const actions: Actions = {
         const { salt, hash } = hashPassword(password);
         await prisma.user.create({
             data: 
-            {name: username, password: hash, salt: salt}
+            {name: username, password: hash, salt: salt, color:userColor? userColor : '#FFFFFF'}
             
         })
 
