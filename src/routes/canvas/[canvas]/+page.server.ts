@@ -3,6 +3,7 @@ import { _canvasses } from '../+page.server';
 import type { PageServerLoad, Actions } from './$types';
 import { prisma } from '$lib';
 import { connect } from 'http2';
+import { disconnect } from 'process';
 
 
 
@@ -79,6 +80,22 @@ export const actions: Actions = {
                         where : {},
                         data: {color: "white", userColor: null}
                     }
+                }
+            }
+        });
+    },
+    favorite: async({request, params, cookies})=>{
+        let canvasName = params.canvas;
+        let data = await request.formData();
+        let isFavorite = Boolean(data.get('isFavorite'));
+        let username = cookies.get('username');
+        console.log(isFavorite)
+
+        await prisma.user.update({
+            where: { name: username },
+            data: {
+                Canvas: {
+                    [isFavorite ? 'connect' : 'disconnect']: { name: canvasName }
                 }
             }
         });

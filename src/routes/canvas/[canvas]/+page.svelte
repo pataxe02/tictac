@@ -7,8 +7,15 @@ import { invalidateAll } from '$app/navigation';
 
 
   let color: string =  "#000000" // black start color
-
+  
   export let data;
+  let isFavorite: boolean;
+  if (data.user.id == data.prisma_canvas.userId) {
+    isFavorite = true;
+  }
+  else {
+    isFavorite = false;
+  }
   let eraserIsActive = false;
   let pixelHeight: number = 640/Math.sqrt(data.prisma_canvas.pixel.length); 
   let pixelWidth: number = 640/Math.sqrt(data.prisma_canvas.pixel.length);
@@ -71,6 +78,10 @@ import { invalidateAll } from '$app/navigation';
     {/each}
   </div>
   <div id="options" class="container">
+    <form id="favoritForm" method="post" action="?/favorite" use:enhance>
+      <input name="isFavorite" type="checkbox" id="favoriteBox" bind:checked={isFavorite} on:change={() => {
+        document.getElementById('favoritForm')?.submit()}}>
+    </form>
     <input type="color" id="color_picker" class="color_picker" bind:value={color}/>
     <button id="eraser" on:click={() => {eraserIsActive = !eraserIsActive}}>
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eraser" viewBox="0 0 16 16">

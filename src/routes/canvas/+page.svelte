@@ -125,5 +125,8 @@ export let form;
         background-color: black;
         color: white;
     }
+    #link{
+        color: white;
+    }
 
 </style>

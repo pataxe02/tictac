@@ -49,5 +49,6 @@ export const actions: Actions = {
 
     logout: async ({request, cookies})=> {
         cookies.delete('username',{path:'/'});
+        throw redirect(307, '/guest');
     } 
 };

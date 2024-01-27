@@ -16,12 +16,15 @@ model User {
   color    String  @unique
   salt     String
   password String
+  Canvas Canvas[]
   pixel    Pixel[]
 }
 
 model Canvas {
   id    Int     @id @default(autoincrement())
   name  String  @unique
+  userId Int?
+  User  User?   @relation(fields: [userId], references: [id])
   pixel Pixel[]
 }
 
