@@ -1,6 +1,5 @@
 <script lan='ts'>
   import { enhance } from '$app/forms';
-  import Page from '../+page.svelte';
 
 export let data;
 export let form;
