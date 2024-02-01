@@ -1,5 +1,6 @@
 <script lan='ts'>
   import { enhance } from '$app/forms';
+  import Page from '../+page.svelte';
 
 export let data;
 export let form;
@@ -38,7 +39,20 @@ export let form;
 
     <div id="canvas_list">
         {#each data.canvasses as canvas}
-            <form method="post" action="?/delete" use:enhance><ul><a href='/canvas/{canvas.name}'>{canvas.name}</a><button name="canvasId" value="{canvas.id}" id="delete">❌</button></ul></form>
+            <form method="post" action="?/delete" use:enhance>
+                {#if canvas.userId == data.user?.id}
+                    <ul style="background-color: {data.user?.color}">
+                        <a href='/canvas/{canvas.name}'>{canvas.name}</a>
+                        <button name="canvasId" value="{canvas.id}" id="delete">❌</button>
+                    </ul>
+                {/if}
+                {#if canvas.userId != data.user?.id}
+                    <ul>
+                        <a href='/canvas/{canvas.name}'>{canvas.name}</a>
+                        <button name="canvasId" value="{canvas.id}" id="delete">❌</button>
+                    </ul>
+                {/if}
+            </form>
         {/each}
     </div>
 </div>

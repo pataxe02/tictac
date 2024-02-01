@@ -4,11 +4,12 @@ import { prisma } from '$lib';
 import { connect } from 'http2';
 
 export let _canvasses = new Map();
-export const load = (async() => {
-
+export const load = (async( { cookies } ) => {
+    let username = cookies.get('username');
     let temp = await prisma.canvas.findMany();
+    let user = await prisma.user.findUnique({where: {name: username}});
 
-    return {canvasses: temp};
+    return {canvasses: temp, user};
 }) satisfies PageServerLoad
 
 export const actions: Actions = {
