@@ -24,7 +24,7 @@ import { invalidateAll } from '$app/navigation';
   if (browser) {
     let interval = setInterval(() => {
         invalidateAll();
-    }, 1000);
+    }, 200);
     onDestroy(() => {
       clearInterval(interval);
     });

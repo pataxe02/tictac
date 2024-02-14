@@ -21,6 +21,8 @@ export const load = (async ({params, cookies}) => {
         throw redirect(307, '/guest')
     }
 
+    // todo: postgres does not return pixels sorted by id.
+    prisma_canvas.pixel.sort((a, b)=>a.id-b.id);
 
     return {canvas, prisma_canvas, user};
 })satisfies PageServerLoad;
